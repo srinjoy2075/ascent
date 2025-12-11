@@ -5,9 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { features } from "./data/featurse";
-import { howItWorks } from "./data/howItWorks";
-import { faqs } from "./data/faqs";
+import { features } from "../data/featurse";
+import { howItWorks } from "../data/howItWorks";
+import { faqs } from "../data/faqs";
 
 export default function Home() {
   return (
