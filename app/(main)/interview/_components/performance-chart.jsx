@@ -28,7 +28,6 @@ export default function PerformanceChart({ assessments }) {
         date: format(new Date(assessment.createdAt), "MMM dd"),
         score: assessment.quizScore,
       }));
-      setChartData(formattedData);
     }
   }, [assessments]);
 
