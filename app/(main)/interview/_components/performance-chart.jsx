@@ -16,19 +16,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { format } from "date-fns";
 
 export default function PerformanceChart({ assessments }) {
-  const [chartData, setChartData] = useState([]);
+  const chartData = useMemo(() => {
+    if (!assessments?.length) return [];
 
-  useEffect(() => {
-    if (assessments) {
-      const formattedData = assessments.map((assessment) => ({
+    return [...assessments]
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+      .map((assessment) => ({
         date: format(new Date(assessment.createdAt), "MMM dd"),
-        score: assessment.quizScore,
+        score: Math.round(assessment.quizScore * 100), // ✅ FIXED SCALE
       }));
-    }
   }, [assessments]);
 
   return (
@@ -39,38 +39,31 @@ export default function PerformanceChart({ assessments }) {
         </CardTitle>
         <CardDescription>Your quiz scores over time</CardDescription>
       </CardHeader>
+
       <CardContent>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis domain={[0, 100]} />
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (active && payload?.length) {
-                    return (
-                      <div className="bg-background border rounded-lg p-2 shadow-md">
-                        <p className="text-sm font-medium">
-                          Score: {payload[0].value}%
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {payload[0].payload.date}
-                        </p>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="score"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {chartData.length < 2 ? (
+            <p className="text-sm text-muted-foreground text-center">
+              Complete at least 2 assessments to see performance trend
+            </p>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="score"
+                  stroke="#6366f1"          // ✅ visible color
+                  strokeWidth={3}
+                  dot={{ r: 5 }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </CardContent>
     </Card>
